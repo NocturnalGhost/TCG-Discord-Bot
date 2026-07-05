@@ -12,17 +12,17 @@ intents.dm_messages = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# 💾 CONFIGURATION 
-LOG_CHANNEL_ID = 1522588698091458571   # Your private log channel ID
-SERVER_ID = 1516866920668729557       # Your main Server/Guild ID
-VERIFIED_ROLE_ID = 1516895163635601539 # The ID of your 'Verified' role
+# CONFIGURATION 
+LOG_CHANNEL_ID = 1522588698091458571   # private log channel ID
+SERVER_ID = 1516866920668729557       # main Server/Guild ID
+VERIFIED_ROLE_ID = 1516895163635601539 # ID of your Verified role
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
-# 📧 EMAIL CONFIGURATION (Gmail Example)
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")  # Your personal Gmail
-SENDER_PASSWORD = os.getenv("SENDER_PASSWORD") # Your 16-character Google App Password
+# EMAIL CONFIGURATION
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")  # Gmail account
+SENDER_PASSWORD = os.getenv("SENDER_PASSWORD") # Google App Password
 
-# This dictionary keeps track of users who are in the middle of verifying
+# dictionary keeps track of users who are in the middle of verifying
 # Format: { user_id: { "student_id": "123456", "code": "987654" } }
 pending_verifications = {}
 
@@ -69,7 +69,7 @@ async def on_message(message):
         user_input = message.content.strip()
         user_id = message.author.id
 
-        # PHASE 2: User is replying with the 6-digit code we emailed them
+        # PHASE 2: User is replying with the 6-digit code emailed to them
         if user_id in pending_verifications:
             saved_data = pending_verifications[user_id]
             
@@ -117,7 +117,7 @@ async def on_message(message):
             await message.channel.send(f"📬 Sending a verification code to `{student_email}`... Please wait a moment.")
             
             try:
-                # Fire off the email asynchronously
+                # send email
                 await send_verification_email(student_email, verification_code)
                 await message.channel.send("📩 Code sent! Please check your university email inbox (and spam folder) and reply here with the 6-digit code.")
             except Exception as e:
@@ -127,7 +127,7 @@ async def on_message(message):
                     del pending_verifications[user_id]
             return
         
-        # If it doesn't fit either phase, give them standard instructions
+        # fallback standard instructions
         await message.channel.send("Please enter a valid Student ID number to begin verification.")
 
     await bot.process_commands(message)
